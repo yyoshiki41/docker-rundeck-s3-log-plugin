@@ -13,10 +13,10 @@ services:
     ports:
       - 4440:4440
     environment:
-      VIRTUAL_HOST: "rundeck.your-org.com,10.255.255.*" # alb からのhealth_check用
       RUNDECK_GRAILS_URL: "https://rundeck.your-org.com"
       RUNDECK_SERVER_ADDRESS: 0.0.0.0
       RUNDECK_SERVER_FORWARDED: "true"
+      RUNDECK_API_TOKENS_DURATION_MAX: 0
       RUNDECK_DATABASE_DRIVER: org.mariadb.jdbc.Driver
       RUNDECK_DATABASE_USERNAME: rundeck
       RUNDECK_DATABASE_PASSWORD: rundeck
