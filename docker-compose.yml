@@ -1,0 +1,53 @@
+version: "3.7"
+
+services:
+  rundeck:
+    container_name: rundeck
+    build:
+      context: ./
+      args:
+        RUNDECK_VERSION: 3.4.7
+    links:
+      - mysql
+    tty: true
+    ports:
+      - 4440:4440
+    environment:
+      VIRTUAL_HOST: "rundeck.your-org.com,10.255.255.*" # alb からのhealth_check用
+      RUNDECK_GRAILS_URL: "https://rundeck.your-org.com"
+      RUNDECK_SERVER_ADDRESS: 0.0.0.0
+      RUNDECK_SERVER_FORWARDED: "true"
+      RUNDECK_DATABASE_DRIVER: com.mysql.jdbc.Driver
+      RUNDECK_DATABASE_USERNAME: rundeck
+      RUNDECK_DATABASE_PASSWORD: rundeck
+      RUNDECK_DATABASE_URL: jdbc:mysql://mysql/rundeck?autoReconnect=true&useSSL=false
+      RUNDECK_PLUGIN_EXECUTIONFILESTORAGE_NAME: org.rundeck.amazon-s3
+      RUNDECK_PLUGIN_EXECUTIONFILESTORAGE_S3_REGION: ap-northeast-1
+      RUNDECK_PLUGIN_EXECUTIONFILESTORAGE_S3_BUCKET: your-bucket-name
+    volumes:
+      - data:/home/rundeck/server/data
+      - ${RUNDECK_LICENSE_FILE:-/dev/null}:/home/rundeck/etc/rundeckpro-license.key
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    expose:
+      - 3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=rundeck
+      - MYSQL_USER=rundeck
+      - MYSQL_PASSWORD=rundeck
+    volumes:
+      - dbdata:/var/lib/mysql
+
+volumes:
+  data:
+    driver_opts:
+      type: none
+      device: /home/ubuntu/volumes/data
+      o: bind
+  dbdata:
+    driver_opts:
+      type: none
+      device: /home/ubuntu/volumes/dbdata
+      o: bind
